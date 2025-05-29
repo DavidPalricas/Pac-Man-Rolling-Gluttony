@@ -2,7 +2,9 @@
 
 #include "PacManPawn.h"
 #include "EnhancedInputSubsystems.h" // Correct header for UEnhancedInputLocalPlayerSubsystem
+#include "Blueprint/WidgetTree.h" 
 #include "EnhancedInputComponent.h"
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
 APacManPawn::APacManPawn()
@@ -29,8 +31,16 @@ void APacManPawn::BeginPlay()
 	}
 
 	SphereMesh = FindComponentByTag<UStaticMeshComponent>("PacMan");
+	SphereMesh->OnComponentBeginOverlap.AddDynamic(this, &APacManPawn::OnOverlapBegin);
 	SpringArm = FindComponentByClass<USpringArmComponent>();
 	Camera = FindComponentByClass<UCameraComponent>();
+
+
+	HUD = CreateWidget<UUserWidget>(GetWorld(), HUDClass);
+	HUD->AddToViewport(0);
+
+	UWidgetTree* widgetTree = HUD->WidgetTree.Get();
+	scoreText = widgetTree->FindWidget<UTextBlock>(FName("Score"));
 }
 
 // Called every frame
@@ -80,4 +90,58 @@ void APacManPawn::OnMouseMovement(const FInputActionValue& Value)
 	// For example, you could rotate the pawn based on mouse movement
 	FRotator NewRotation = FRotator(0, inputValue.X * 10.0f, 0); // Adjust rotation speed as needed
 	AddActorLocalRotation(NewRotation);
+}
+
+void APacManPawn::OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)  
+{    
+   FVector cherryPos = FVector::ZeroVector; // Initialize cherry position  
+
+   if (OtherActor->Tags.Contains("Cherry"))  
+   {
+       cherryPos = OtherActor->GetActorLocation();  
+
+	   if (CherryCollectedSound) 
+	   {
+		   UGameplayStatics::PlaySoundAtLocation(
+			   this,              
+			   CherryCollectedSound,       
+			   cherryPos,         
+			   1.0f,              
+			   1.0f,              
+			   0.0f,              
+			   nullptr,          
+			   nullptr            
+		   );
+	   }
+
+       OtherActor->Destroy();  
+       score++;  
+   }  
+
+   FString scoreString = "Score: ";
+   scoreString.AppendInt(score);
+   scoreText->SetText(FText::FromString(scoreString));  
+
+   if (cherryPos != FVector::ZeroVector) {  
+       FVector capturedCherryPos = cherryPos; 
+
+       FTimerHandle TimerHandle;  
+       GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, capturedCherryPos]()  
+           {  
+              SpawnCherry(capturedCherryPos);  
+           }, 2.0f, false);  
+   }  
+}
+
+void APacManPawn::SpawnCherry(FVector position)
+{
+	
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	AActor* cherry = GetWorld()->SpawnActor<AActor>(Cherry, position, FRotator::ZeroRotator, spawnParams);
+
+	if (cherry)
+	{
+		cherry->Tags.Add("Cherry");
+	}
 }
