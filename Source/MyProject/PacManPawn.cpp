@@ -59,6 +59,7 @@ void APacManPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		inputComp->BindAction(MovementAction, ETriggerEvent::Triggered, this, &APacManPawn::OnMovement);
 		inputComp->BindAction(MouseMovement, ETriggerEvent::Triggered, this, &APacManPawn::OnMouseMovement);
 		inputComp->BindAction(Jump, ETriggerEvent::Triggered, this, &APacManPawn::HandleJump);
+		inputComp->BindAction(Exit, ETriggerEvent::Triggered, this, &APacManPawn::ExitGame);
 	}
 }
 
@@ -156,4 +157,10 @@ void APacManPawn::HandleJump() {
        FVector JumpImpulse = FVector(0, 0, 500.0f);  
        SphereMesh->AddImpulse(JumpImpulse, NAME_None, true);  
      }  
+}
+
+void APacManPawn::ExitGame() {  
+   if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0)) {  
+       PlayerController->ConsoleCommand("quit");  
+   }  
 }

@@ -31,6 +31,9 @@ public:
 	UInputAction* Jump;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly);
+	UInputAction* Exit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly);
 	UInputMappingContext* MappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly);
@@ -74,4 +77,6 @@ public:
 	void SpawnCherry(FVector position);
 
 	void HandleJump();
+
+	void ExitGame();
 };
