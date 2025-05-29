@@ -28,8 +28,10 @@ public:
 	UInputAction* MouseMovement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly);
-	UInputMappingContext* MappingContext;
+	UInputAction* Jump;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly);
+	UInputMappingContext* MappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly);
 	TSubclassOf<UUserWidget>HUDClass;
@@ -70,4 +72,6 @@ public:
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void SpawnCherry(FVector position);
+
+	void HandleJump();
 };

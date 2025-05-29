@@ -58,6 +58,7 @@ void APacManPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	{
 		inputComp->BindAction(MovementAction, ETriggerEvent::Triggered, this, &APacManPawn::OnMovement);
 		inputComp->BindAction(MouseMovement, ETriggerEvent::Triggered, this, &APacManPawn::OnMouseMovement);
+		inputComp->BindAction(Jump, ETriggerEvent::Triggered, this, &APacManPawn::HandleJump);
 	}
 }
 
@@ -144,4 +145,15 @@ void APacManPawn::SpawnCherry(FVector position)
 	{
 		cherry->Tags.Add("Cherry");
 	}
+}
+
+
+void APacManPawn::HandleJump() {  
+    FVector CurrentVelocity = SphereMesh->GetPhysicsLinearVelocity();  
+
+    // Check if the object is on the ground  
+    if (FMath::IsNearlyZero(CurrentVelocity.Z, 1.0f)) { 
+       FVector JumpImpulse = FVector(0, 0, 500.0f);  
+       SphereMesh->AddImpulse(JumpImpulse, NAME_None, true);  
+     }  
 }
