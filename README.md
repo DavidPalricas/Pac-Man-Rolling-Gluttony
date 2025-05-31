@@ -16,3 +16,6 @@ Jump -> Space Key
 Move the Camera -> Move the Mouse
 
 Exit the Game-> E Key
+
+## GamePlay
+[Click Here](https://www.youtube.com/watch?v=seu-link).
